@@ -4,8 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>14a3c78c-c7ef-4936-b464-47eea0e86319</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -25,10 +24,16 @@
   <ItemGroup>
     <Folder Include="modules\" />
     <Folder Include="models\" />
+    <Folder Include="helper\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="models\resnet50_wrapper.py" />
+    <Compile Include="helper\data_generator.py" />
+    <Compile Include="helper\evaluator.py" />
+    <Compile Include="helper\trainer.py" />
+    <Compile Include="main.py" />
+    <Compile Include="models\resnet50.py" />
     <Compile Include="modules\distillation_loss.py" />
+    <Compile Include="modules\pruner.py" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="CondaEnv|CondaEnv|condatorch" />
