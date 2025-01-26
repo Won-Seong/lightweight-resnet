@@ -7,7 +7,6 @@ from helper.evaluator import Evaluator
 from modules.distillation_loss import DistillationLoss
 from modules.pruner import Pruner
 
-
 if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f'using device : {device}\t'  + (f'{torch.cuda.get_device_name(0)}' if torch.cuda.is_available() else 'CPU' ))
@@ -19,9 +18,9 @@ if __name__ == '__main__':
     
     train_data_loader = cifar100(path = './datasets/train', batch_size=256)
     test_data_loader = cifar100(path = './datasets/test', batch_size=256)
-    trainer = Trainer(model, DistillationLoss())
-    pruner = Pruner(model, trainer)
-    pruner.iterative_prune(16, train_data_loader, test_data_loader, 1)
+    
+    pruner = Pruner(model)
+    pruner.iterative_prune(10, train_data_loader, test_data_loader, 20)
     
     #evaluator.evaluate(model, test_data_loader, True)
     #trainer = Trainer(model, torch.nn.CrossEntropyLoss())

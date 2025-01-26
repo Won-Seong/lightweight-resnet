@@ -7,19 +7,28 @@ from copy import deepcopy
 
 from helper.trainer import Trainer
 from helper.evaluator import number_of_parameters
+import pandas as pd
+
+from modules.distillation_loss import DistillationLoss
 
 class Pruner():
-    def __init__(self, model : nn.Module, trainer : Trainer):
+    def __init__(self, model : nn.Module):
         self.model = symbolic_trace(model)
-        self.trainer = trainer
+        self.trainer = Trainer(self.model, DistillationLoss())
         self.teacher = deepcopy(self.model)
         
     def iterative_prune(self, num_of_iter : int, train_data_loader : DataLoader, test_data_loader : DataLoader,
                         epochs : int, n : int = 2, amount=0.1):
+        logs = []
         for i in range(1, num_of_iter + 1):
+            self.trainer = Trainer(self.model, DistillationLoss())
             self.prune(n, amount)
-            print("Num of params after pruning = " + str(number_of_parameters(self.model)))
-            self.re_train(train_data_loader, test_data_loader, epochs, 'check_points/prune_iter_' + str(i), 'runs/prune_iter_' + str(i))
+            print("Step = " + str(i) + " | Num of parameters = " + str(number_of_parameters(self.model)))
+            best_val_accuracy = self.re_train(train_data_loader, test_data_loader, epochs, 
+                                              'check_points/prune_iter_' + str(i), 'runs/prune_iter_' + str(i))
+            logs.append({"Step" : i, "Parameters" : number_of_parameters(self.model), "Accuracy" : best_val_accuracy})
+        df_logs = pd.DataFrame(logs)
+        df_logs.to_csv("pruning_logs.csv", index=False)
         
     def prune(self, n=2, amount=0.1):
         modules_to_prune = []
@@ -81,5 +90,6 @@ class Pruner():
     def re_train(self, train_data_loader : DataLoader, test_data_loader : DataLoader,
                     epochs : int, file_name : str, log_dir : str):
         self.trainer.distillation_train(self.teacher, train_data_loader, test_data_loader, epochs, file_name, log_dir)
+        return self.trainer.best_val_accuracy
         
             
