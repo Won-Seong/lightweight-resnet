@@ -29,6 +29,7 @@
   <ItemGroup>
     <Compile Include="helper\data_generator.py" />
     <Compile Include="helper\evaluator.py" />
+    <Compile Include="helper\loader.py" />
     <Compile Include="helper\trainer.py" />
     <Compile Include="main.py" />
     <Compile Include="models\resnet50.py" />

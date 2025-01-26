@@ -1,10 +1,11 @@
 from torchvision.models import resnet50, ResNet50_Weights
 import torch.nn as nn
 
-class ResNet50(nn.Module):
-    def __init__(self, device):
-        super().__init__()
-        self.model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V2).to(device)
-        
-    def forward(self, x):
-        return self.model(x)
+def get_resnet50(out_features : int = None):
+    model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
+    model.maxpool = nn.Identity() # Remove MaxPooling
+    if out_features is not None:
+        in_features = model.fc.in_features
+        model.fc = nn.Linear(in_features, out_features)
+        print("Out features = " + str(out_features))
+    return model

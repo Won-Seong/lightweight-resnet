@@ -2,16 +2,16 @@ import torch
 from tqdm import tqdm
 import time
 
+@torch.no_grad()    
+def number_of_parameters(model, print_result=False):
+    total_params = sum(p.numel() for p in model.parameters())
+    if print_result:
+        print(f"Total number of parameters: {total_params}")
+    return total_params
+
 class Evaluator():
     def __init__(self, device):
         self.device = device
-        
-    @torch.no_grad()    
-    def number_of_parameters(self, model, print_result=False):
-        total_params = sum(p.numel() for p in model.parameters())
-        if print_result:
-            print(f"Total number of parameters: {total_params}")
-        return total_params
         
     @torch.no_grad()
     def evaluate(self, model, data_loader, print_result=False):

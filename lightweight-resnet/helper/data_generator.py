@@ -1,6 +1,6 @@
 import torch
 from torch.utils.data import TensorDataset, DataLoader
-from torchvision.transforms import Compose, Normalize, Resize
+from torchvision.transforms import Compose, Normalize
 
 import pickle
 
@@ -10,7 +10,6 @@ def unpickle(path):
     return dict
 
 cifar100_transform = Compose([
-    Resize((224, 224), antialias=None),
     Normalize(mean=(0.5071, 0.4867, 0.4408), std=(0.2675, 0.2565, 0.2761)),
     ])
 
