@@ -44,14 +44,16 @@ class Trainer():
                 self.optimizer.step()
                 epoch_loss += loss.item()
                 progress_bar.set_postfix(loss=epoch_loss / len(progress_bar))
-                
-            epoch_loss = epoch_loss / len(progress_bar)
-            train_accuracy = self.evaluator.evaluate(self.model, train_data_loader)
-            val_accuracy = self.evaluator.evaluate(self.model, test_data_loader)
-            writer.add_scalar("Loss/train", epoch_loss, epoch)
-            writer.add_scalar("Accuracy/train", train_accuracy, epoch)
-            writer.add_scalar("Accuracy/test", val_accuracy, epoch)
-            self.log_and_save(epoch, epoch_loss, val_accuracy, file_name)
+            
+            self.accelerator.wait_for_everyone()
+            if self.accelerator.is_main_process:
+                epoch_loss = epoch_loss / len(progress_bar)
+                train_accuracy = self.evaluator.evaluate(self.model, train_data_loader)
+                val_accuracy = self.evaluator.evaluate(self.model, test_data_loader)
+                writer.add_scalar("Loss/train", epoch_loss, epoch)
+                writer.add_scalar("Accuracy/train", train_accuracy, epoch)
+                writer.add_scalar("Accuracy/test", val_accuracy, epoch)
+                self.log_and_save(epoch, epoch_loss, val_accuracy, file_name)
         writer.close()
              
     def distillation_train(self, teacher, train_data_loader : DataLoader, test_data_loader : DataLoader, epochs : int, file_name : str, log_dir : str):
@@ -79,27 +81,27 @@ class Trainer():
                 epoch_loss += loss.item()
                 progress_bar.set_postfix(loss=epoch_loss / len(progress_bar))
                 
-            epoch_loss = epoch_loss / len(progress_bar)
-            train_accuracy = self.evaluator.evaluate(self.model, train_data_loader)
-            val_accuracy = self.evaluator.evaluate(self.model, test_data_loader)
-            writer.add_scalar("Loss/train", epoch_loss, epoch)
-            writer.add_scalar("Accuracy/train", train_accuracy, epoch)
-            writer.add_scalar("Accuracy/test", val_accuracy, epoch)
-            self.log_and_save(epoch, epoch_loss, val_accuracy, file_name)
+            self.accelerator.wait_for_everyone()
+            if self.accelerator.is_main_process:
+                epoch_loss = epoch_loss / len(progress_bar)
+                train_accuracy = self.evaluator.evaluate(self.model, train_data_loader)
+                val_accuracy = self.evaluator.evaluate(self.model, test_data_loader)
+                writer.add_scalar("Loss/train", epoch_loss, epoch)
+                writer.add_scalar("Accuracy/train", train_accuracy, epoch)
+                writer.add_scalar("Accuracy/test", val_accuracy, epoch)
+                self.log_and_save(epoch, epoch_loss, val_accuracy, file_name)
         writer.close()
             
     def log_and_save(self, epoch, epoch_loss, val_accuracy, file_name):
-        self.accelerator.wait_for_everyone()
-        if self.accelerator.is_main_process:
-            log_string = f"Validation accuracy at epoch {epoch}: {val_accuracy * 100 :.2f}%"
-            if self.best_val_accuracy < val_accuracy:
-                self.best_val_accuracy = val_accuracy
-                log_string += " --> Best model ever (stored)"
-                torch.save({
-                    "model_state_dict": self.accelerator.get_state_dict(self.model),
-                    "optimizer_state_dict": self.optimizer.state_dict(),
-                    "epoch": epoch,
-                    "epoch_loss": epoch_loss,
-                    "val_accuracy": val_accuracy,
-                    }, file_name + '.pth')
-            print(log_string)
+        log_string = f"Validation accuracy at epoch {epoch}: {val_accuracy * 100 :.2f}%"
+        if self.best_val_accuracy < val_accuracy:
+            self.best_val_accuracy = val_accuracy
+            log_string += " --> Best model ever (stored)"
+            torch.save({
+                "model_state_dict": self.accelerator.get_state_dict(self.model),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+                "epoch": epoch,
+                "epoch_loss": epoch_loss,
+                "val_accuracy": val_accuracy,
+                }, file_name + '.pth')
+        print(log_string)
