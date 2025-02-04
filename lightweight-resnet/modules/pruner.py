@@ -91,5 +91,3 @@ class Pruner():
                     epochs : int, file_name : str, log_dir : str):
         self.trainer.distillation_train(self.teacher, train_data_loader, test_data_loader, epochs, file_name, log_dir)
         return self.trainer.best_val_accuracy
-        
-            

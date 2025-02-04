@@ -19,8 +19,8 @@ if __name__ == '__main__':
     train_data_loader = cifar100(path = './datasets/train', batch_size=256)
     test_data_loader = cifar100(path = './datasets/test', batch_size=256)
     
-    pruner = Pruner(model)
-    pruner.iterative_prune(10, train_data_loader, test_data_loader, 20)
+    pruner = Pruner(model, train_data_loader)
+    pruner.iterative_prune(10, test_data_loader, 20)
     
     #evaluator.evaluate(model, test_data_loader, True)
     #trainer = Trainer(model, torch.nn.CrossEntropyLoss())
