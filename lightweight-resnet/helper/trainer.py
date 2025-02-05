@@ -20,6 +20,7 @@ class Trainer():
         self.loss_fn = loss_fn
         if self.optimizer is None:
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr = 1e-4)
+        self.scheduler = torch.optim.lr_scheduler.ExponentialLR(self.optimizer, gamma = 0.95)
         self.accelerator = Accelerator(mixed_precision = 'no')
         self.start_epoch = start_epoch
         self.best_val_accuracy = best_val_accuracy
@@ -28,8 +29,8 @@ class Trainer():
     def train(self, train_data_loader : DataLoader, test_data_loader : DataLoader, epochs : int, file_name : str, log_dir : str):
         writer = SummaryWriter(log_dir = log_dir)
         self.model.train()
-        self.model, self.optimizer, train_data_loader = self.accelerator.prepare(
-            self.model, self.optimizer, train_data_loader)
+        self.model, self.optimizer, train_data_loader, self.scheduler = self.accelerator.prepare(
+            self.model, self.optimizer, train_data_loader, self.scheduler)
         
         for epoch in range(self.start_epoch + 1, epochs + 1):
             epoch_loss = 0.0
@@ -47,6 +48,7 @@ class Trainer():
             
             self.accelerator.wait_for_everyone()
             if self.accelerator.is_main_process:
+                self.scheduler.step()
                 epoch_loss = epoch_loss / len(progress_bar)
                 train_accuracy = self.evaluator.evaluate(self.model, train_data_loader)
                 val_accuracy = self.evaluator.evaluate(self.model, test_data_loader)
@@ -62,8 +64,8 @@ class Trainer():
         for param in teacher.parameters():
             param.requires_grad = False
         self.model.train()
-        self.model, self.optimizer, train_data_loader = self.accelerator.prepare(
-            self.model, self.optimizer, train_data_loader)
+        self.model, self.optimizer, train_data_loader, self.scheduler = self.accelerator.prepare(
+            self.model, self.optimizer, train_data_loader, self.scheduler)
         
         for epoch in range(self.start_epoch + 1, epochs + 1):
             epoch_loss = 0.0
@@ -83,6 +85,7 @@ class Trainer():
                 
             self.accelerator.wait_for_everyone()
             if self.accelerator.is_main_process:
+                self.scheduler.step()
                 epoch_loss = epoch_loss / len(progress_bar)
                 train_accuracy = self.evaluator.evaluate(self.model, train_data_loader)
                 val_accuracy = self.evaluator.evaluate(self.model, test_data_loader)

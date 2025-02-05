@@ -13,9 +13,9 @@ from modules.distillation_loss import DistillationLoss
 
 class Pruner():
     def __init__(self, model : nn.Module):
+        self.teacher = deepcopy(model)
         self.model = symbolic_trace(model)
         self.trainer = Trainer(self.model, DistillationLoss())
-        self.teacher = deepcopy(self.model)
         
     def iterative_prune(self, num_of_iter : int, train_data_loader : DataLoader, test_data_loader : DataLoader,
                         epochs : int, n : int = 2, amount=0.1):
