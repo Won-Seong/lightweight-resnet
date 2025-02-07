@@ -55,7 +55,7 @@ class Trainer():
                 writer.add_scalar("Loss/train", epoch_loss, epoch)
                 writer.add_scalar("Accuracy/train", train_accuracy, epoch)
                 writer.add_scalar("Accuracy/test", val_accuracy, epoch)
-                self.log_and_save(epoch, epoch_loss, val_accuracy, file_name)
+                self.log_and_save(epoch, val_accuracy, file_name)
         writer.close()
              
     def distillation_train(self, teacher, train_data_loader : DataLoader, test_data_loader : DataLoader, epochs : int, file_name : str, log_dir : str):
@@ -92,19 +92,14 @@ class Trainer():
                 writer.add_scalar("Loss/train", epoch_loss, epoch)
                 writer.add_scalar("Accuracy/train", train_accuracy, epoch)
                 writer.add_scalar("Accuracy/test", val_accuracy, epoch)
-                self.log_and_save(epoch, epoch_loss, val_accuracy, file_name)
+                self.log_and_save(epoch, val_accuracy, file_name)
         writer.close()
             
-    def log_and_save(self, epoch, epoch_loss, val_accuracy, file_name):
+    def log_and_save(self, epoch, val_accuracy, file_name):
         log_string = f"Validation accuracy at epoch {epoch}: {val_accuracy * 100 :.2f}%"
         if self.best_val_accuracy < val_accuracy:
             self.best_val_accuracy = val_accuracy
             log_string += " --> Best model ever (stored)"
-            torch.save({
-                "model_state_dict": self.accelerator.get_state_dict(self.model),
-                "optimizer_state_dict": self.optimizer.state_dict(),
-                "epoch": epoch,
-                "epoch_loss": epoch_loss,
-                "val_accuracy": val_accuracy,
-                }, file_name + '.pth')
+            unwrapped_model = self.accelerator.unwrap_model(self.model)
+            torch.save(unwrapped_model, file_name + '.pt')
         print(log_string)

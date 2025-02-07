@@ -3,7 +3,6 @@ from torch import nn
 import torch.nn.utils.prune as prune
 from torch.utils.data import DataLoader
 from torch.fx import symbolic_trace
-from copy import deepcopy
 
 from helper.trainer import Trainer
 from helper.evaluator import number_of_parameters
@@ -12,8 +11,11 @@ import pandas as pd
 from modules.distillation_loss import DistillationLoss
 
 class Pruner():
-    def __init__(self, model : nn.Module):
-        self.teacher = deepcopy(model)
+    def __init__(self, teacher : nn.Module, model : nn.Module):
+        self.teacher = teacher
+        self.teacher.eval()
+        for param in teacher.parameters():
+            param.requires_grad = False
         self.model = symbolic_trace(model)
         self.trainer = Trainer(self.model, DistillationLoss())
         
@@ -63,7 +65,7 @@ class Pruner():
                 new_module = nn.Conv2d(pruned_weight.size(1), module.out_channels, kernel_size=module.kernel_size,
                                 stride=module.stride, padding=module.padding)
                 new_module.weight.data = pruned_weight
-                prune.ln_structured(new_module, name='weight', amount = amount, n = 2, dim = 0)
+                prune.ln_structured(new_module, name='weight', amount = amount, n = n, dim = 0)
                 prune.remove(new_module, 'weight')
                 zero_idx = []
                 for idx in range(len(new_module.weight.data)):
