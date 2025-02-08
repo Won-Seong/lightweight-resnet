@@ -1,3 +1,4 @@
+import os
 import torch
 from torch import nn
 import torch.nn.utils.prune as prune
@@ -23,14 +24,16 @@ class Pruner():
                         epochs : int, n : int = 2, amount=0.1):
         logs = []
         for i in range(1, num_of_iter + 1):
+            file_name = 'check_points/prune_iter_' + str(i)
             self.trainer = Trainer(self.model, DistillationLoss())
             self.prune(n, amount)
             print("Step = " + str(i) + " | Num of parameters = " + str(number_of_parameters(self.model)))
             best_val_accuracy = self.re_train(train_data_loader, test_data_loader, epochs, 
-                                              'check_points/prune_iter_' + str(i), 'runs/prune_iter_' + str(i))
-            logs.append({"Step" : i, "Parameters" : number_of_parameters(self.model), "Accuracy" : best_val_accuracy})
-        df_logs = pd.DataFrame(logs)
-        df_logs.to_csv("pruning_logs.csv", index=False)
+                                              file_name, 'runs/prune_iter_' + str(i))
+            file_size = os.path.getsize(file_name + ".pth") / (1024 * 1024)
+            logs.append({"Step" : i, "Parameters" : number_of_parameters(self.model), "Accuracy" : best_val_accuracy, "Size" : file_size},)
+            df_logs = pd.DataFrame(logs)
+            df_logs.to_csv("pruning_logs.csv", index=False)
         
     def prune(self, n=2, amount=0.1):
         modules_to_prune = []

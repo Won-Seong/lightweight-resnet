@@ -20,7 +20,7 @@ class Trainer():
         self.loss_fn = loss_fn
         if self.optimizer is None:
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr = 1e-4)
-        self.scheduler = torch.optim.lr_scheduler.ExponentialLR(self.optimizer, gamma = 0.95)
+        self.scheduler = torch.optim.lr_scheduler.ExponentialLR(self.optimizer, gamma = 0.98)
         self.accelerator = Accelerator(mixed_precision = 'no')
         self.start_epoch = start_epoch
         self.best_val_accuracy = best_val_accuracy
@@ -33,6 +33,7 @@ class Trainer():
             self.model, self.optimizer, train_data_loader, self.scheduler)
         
         for epoch in range(self.start_epoch + 1, epochs + 1):
+            self.model.train()
             epoch_loss = 0.0
             progress_bar = tqdm(train_data_loader, leave=False, desc=f"Epoch {epoch}/{epochs}", colour="#005500", disable = not self.accelerator.is_local_main_process)
             for batch in progress_bar:
@@ -68,6 +69,7 @@ class Trainer():
             self.model, self.optimizer, train_data_loader, self.scheduler)
         
         for epoch in range(self.start_epoch + 1, epochs + 1):
+            self.model.train()
             epoch_loss = 0.0
             progress_bar = tqdm(train_data_loader, leave=False, desc=f"Epoch {epoch}/{epochs}", colour="#005500", disable = not self.accelerator.is_local_main_process)
             for batch in progress_bar:
