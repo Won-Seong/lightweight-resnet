@@ -103,5 +103,5 @@ class Trainer():
             self.best_val_accuracy = val_accuracy
             log_string += " --> Best model ever (stored)"
             unwrapped_model = self.accelerator.unwrap_model(self.model)
-            torch.save(unwrapped_model, file_name + '.pt')
+            torch.save(unwrapped_model, file_name + '.pth')
         print(log_string)
