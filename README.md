@@ -11,7 +11,7 @@ This repository focuses on compressing **ResNet50** to create a **lightweight-Re
 
 ## **Results**
 
-The table below summarizes the results of compressing ResNet50. The full results can be found in [this file](assets/pruning_logs.csv).
+The table below summarizes the results of compressing ResNet50. The full results can be found in [this file](lightweight-resnet/assets/pruning_logs.csv).
 
 | Number of Parameters | Validation Accuracy | Size (MB) |
 |----------------------|---------------------|-----------|
