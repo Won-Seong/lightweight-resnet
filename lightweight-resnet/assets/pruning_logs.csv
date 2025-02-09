@@ -1,4 +1,4 @@
-Step,# Parameters,Accuracy,Size (MB)
+Step,# Parameters,Validation Accuracy,Size (MB)
 1,20639037,0.8287,79.08583641
 2,18051107,0.8225,69.21144676
 3,15860582,0.8162,60.84724998
