@@ -35,7 +35,7 @@ The table below summarizes the results of compressing ResNet50. The full results
 The following plot visualizes the relationship between **the number of parameters and accuracy**.
 
 <p align="center">
-  <img src="assets/accu_over_params.png" width="800"/>
+  <img src="lightweight-resnet/assets/accu_over_params.png" width="600"/>
 </p>
 
 ### **Insights from the Plot**
