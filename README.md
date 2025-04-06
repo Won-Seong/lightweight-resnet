@@ -111,8 +111,4 @@ if __name__ == '__main__':
    - Use **t-SNE** or **PCA** to visualize how feature representations change before and after pruning.
 
 ## **Final Thoughts**
-This project demonstrates that **ResNet50 can be significantly compressed while maintaining reasonable accuracy**.  
-However, careful fine-tuning and training strategies are required to **mitigate accuracy loss from excessive pruning**.  
-
-If you have any questions or suggestions, feel free to contribute!
-
+This project demonstrates that **ResNet50 can be significantly compressed while maintaining reasonable accuracy**. However, careful fine-tuning and training strategies are required to **mitigate accuracy loss from excessive pruning**.  
